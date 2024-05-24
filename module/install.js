@@ -207,6 +207,50 @@ class install {
 		return true;
 	}
 
+	// 实现发送js直链下载后安装
+	/**
+	 * 安装直链插件
+	 * @param url 插件地址
+	 * @param e 消息
+	 */
+	async installurl(url, e) {
+		if(!url.endsWith('.js')) {
+			e.reply('插件地址错误，请检查后重试')
+			return true;
+		}
+		//插件名解析
+		let name = url.replace(/https:|http|\.js/g, "").split("/");
+		name = name.pop();
+		e.reply(`开始安装：${name}`)
+		//检查插件地址
+		if (!await this.checkurl(url)) {
+			e.reply(`安装失败！无法连接到目标地址`)
+			return true;
+		}
+		//检查插件名
+		if (await this.checkname(name)) {
+			e.reply(`已经安装该插件，若该插件无法运行，可以尝试重新安装`)
+			return true;
+		}
+		//下载文件，写入插件目录
+		const response = await fetch(url);
+		const streamPipeline = promisify(pipeline);
+		await streamPipeline(response.body, fs.createWriteStream(`${_path}/plugins/example/${name}.js`));
+		
+		if(response.status !== 200) {
+			e.reply('插件下载失败，请检查插件地址后重试')
+			return true
+		}
+		if(result.error) {
+			e.reply(`安装${name}失败,错误信息:\n${result.error}`);
+			return true;
+		}
+		//重启云崽
+		await e.reply("安装成功!即将进行重启...");
+		this.restart(e);
+		return true;
+	}
+
 	/**
 	 * 检查插件地址有效性
 	 * @param url 插件地址
