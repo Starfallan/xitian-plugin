@@ -39,7 +39,11 @@ export class Install extends plugin {
 				{
 					reg: '^#清空回收站',
 					fnc: 'clear'
-				}
+				},
+				{
+                    reg: '^#安装插件(https:\/\/[a-zA-Z0-9-]{1,39}\/[a-zA-Z0-9_-]{1,100}.js)?$',
+                    fnc: 'installurl'
+                },
 			]
 		})
 	}
@@ -101,6 +105,16 @@ export class Install extends plugin {
 			e.reply("批量安装已结束~")
 			return true;
 		}
+	}
+
+	// 实现发送js直链下载后安装
+	/**
+	 * 安装直链插件
+	 * @param url 插件地址
+	 * @param e 消息
+	 */
+	async installurl(url, e) {
+		await install.installurl(url, e);
 	}
 
 	async install(e) {
